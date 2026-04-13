@@ -1,14 +1,17 @@
 package org.pm.patientservice.controller;
 
-import jakarta.validation.Valid;
+import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
 import org.pm.patientservice.dto.PatientRequestDTO;
 import org.pm.patientservice.dto.PatientResponseDTO;
+import org.pm.patientservice.dto.validators.CreatePatientValidationGroup;
 import org.pm.patientservice.service.PatientService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/patients")
@@ -22,7 +25,18 @@ public class PatientController {
     }
 
     @PostMapping
-    public ResponseEntity<PatientResponseDTO> createPatient(@Valid @RequestBody PatientRequestDTO patientRequestDTO) {
+    public ResponseEntity<PatientResponseDTO> createPatient(@Validated({Default.class, CreatePatientValidationGroup.class}) @RequestBody PatientRequestDTO patientRequestDTO) {
         return ResponseEntity.ok(patientService.createPatient(patientRequestDTO));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PatientResponseDTO> updatePatient(@PathVariable UUID id, @Validated({Default.class}) @RequestBody PatientRequestDTO patientRequestDTO) {
+        return ResponseEntity.ok(patientService.updatePatient(id, patientRequestDTO));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deletePatient(@PathVariable UUID id) {
+        patientService.deletePatient(id);
+        return ResponseEntity.ok("User with Id: " + id + " Deleted");
     }
 }
